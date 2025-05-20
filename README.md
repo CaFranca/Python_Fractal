@@ -21,5 +21,4 @@ Este repositório contém implementações em Python para desenhar fractais geom
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/seu-repositorio.git
-   cd seu-repositorio
+    (https://github.com/CaFranca/Fractal.git)
