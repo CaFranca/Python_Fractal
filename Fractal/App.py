@@ -1,4 +1,8 @@
 # app.py
+#pip install matplotlib
+#pip install numpy
+#pip install turtle
+
 from formas import (
     desenhar_arvore,
     desenhar_koch,
