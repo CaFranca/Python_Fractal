@@ -1,92 +1,52 @@
-def draw_triangle(center, side_length, degrees_rotate, thickness, colour, 
-                  pixels, shrink_side_by, iteration, max_depth):
+import numpy as np
+from PIL import Image
+import math
 
-    # The height of an equilateral triangle is, h = ½(√3a) 
-    # where 'a' is the side length
-    triangle_height = side_length * math.sqrt(3)/2
+def plot_line(from_coordinates, to_coordinates, thickness, colour, pixels):
 
-    # The top corner
-    top = [center[0] - triangle_height/2, center[1]]
+    # Figure out the boundaries of our pixel array
+    max_x_coordinate = len(pixels[0])
+    max_y_coordinate = len(pixels)
 
-    # Bottom left corner
-    bottom_left = [center[0] + triangle_height/2, center[1] - side_length/2]
+    # The distances along the x and y axis between the 2 points
+    horizontal_distance = to_coordinates[1] - from_coordinates[1]
+    vertical_distance = to_coordinates[0] - from_coordinates[0]
 
-    # Bottom right corner
-    bottom_right = [center[0] + triangle_height/2, center[1] + side_length/2]
+    # The total distance between the two points
+    distance =  math.sqrt((to_coordinates[1] - from_coordinates[1])**2 
+                + (to_coordinates[0] - from_coordinates[0])**2)
 
-    if (degrees_rotate != 0):
-        top = rotate(top, center, degrees_rotate)
-        bottom_left = rotate(bottom_left, center, degrees_rotate)
-        bottom_right = rotate(bottom_right, center, degrees_rotate)
+    # How far we will step forwards each time we colour in a new pixel
+    horizontal_step = horizontal_distance/distance
+    vertical_step = vertical_distance/distance
 
-    # Coordinates between each edge of the triangle
-    lines = [[top, bottom_left],[top, bottom_right],[bottom_left, bottom_right]]
+    # At this point, we enter the loop to draw the line in our pixel array
+    # Each iteration of the loop will add a new point along our line
+    for i in range(round(distance)):
 
-    line_number = 0
+        # These 2 coordinates are the ones at the center of our line
+        current_x_coordinate = round(from_coordinates[1] + (horizontal_step*i))
+        current_y_coordinate = round(from_coordinates[0] + (vertical_step*i))
 
-    # Draw a line between each corner to complete the triangle
-    for line in lines:
-        line_number += 1
+        # Once we have the coordinates of our point, 
+        # we draw around the coordinates of size 'thickness'
+        for x in range (-thickness, thickness):
+            for y in range (-thickness, thickness):
+                x_value = current_x_coordinate + x
+                y_value = current_y_coordinate + y
 
-        plot_line(line[0], line[1], thickness, colour, pixels)
+                if (x_value > 0 and x_value < max_x_coordinate and 
+                    y_value > 0 and y_value < max_y_coordinate):
+                    pixels[y_value][x_value] = colour
 
-        # If we haven't reached max_depth, draw some new triangles
-        if (iteration < max_depth and (iteration < 1 or line_number < 3)):
-            gradient = (line[1][0] - line[0][0]) / (line[1][1] - line[0][1])
+# Define the size of our image
+pixels = np.zeros( (500,500,3), dtype=np.uint8 )
 
-            new_side_length = side_length*shrink_side_by
+# Draw a line
+plot_line([0,0], [499,499], 1, [255,200,0], pixels)
 
-            # Center of the line of the traingle we are drawing
-            center_of_line = [(line[0][0] + line[1][0]) / 2, 
-                              (line[0][1] + line[1][1]) / 2]
+# Turn our pixel array into a real picture
+img = Image.fromarray(pixels)
 
-            new_center = []
-            new_rotation = degrees_rotate
-
-            # Amount we need to rotate the traingle by
-            if (line_number == 1):
-                new_rotation += 60
-            elif (line_number == 2):
-                new_rotation -= 60
-            else:
-                new_rotation += 180
-
-            # In an ideal world this would be gradient == 0,
-            # but due to floating point division we cannot
-            # ensure that this will always be the case
-            if (gradient < 0.0001 and gradient > -0.0001):
-                if (center_of_line[0] - center[0] > 0):
-                    new_center = [center_of_line[0] + triangle_height * 
-                                 (shrink_side_by/2), center_of_line[1]]
-                else:
-                    new_center = [center_of_line[0] - triangle_height * 
-                                  (shrink_side_by/2), center_of_line[1]]
-
-            else:
-
-                # Calculate the normal to the gradient of the line
-                difference_from_center = -1/gradient
-
-                # Calculate the distance from the center of the line
-                # to the center of our new traingle
-                distance_from_center = triangle_height * (shrink_side_by/2)
-
-                # Calculate the length in the x direction, 
-                # from the center of our line to the center of our new triangle
-                x_length = math.sqrt((distance_from_center**2)/ 
-                                     (1 + difference_from_center**2))
-
-                # Figure out which way around the x direction needs to go
-                if (center_of_line[1] < center[1] and x_length > 0):
-                    x_length *= -1
-
-                # Now calculate the length in the y direction
-                y_length = x_length * difference_from_center
-
-                # Offset the center of the line with our new x and y values
-                new_center = [center_of_line[0] + y_length, 
-                              center_of_line[1] + x_length]
-
-            draw_triangle(new_center, new_side_length, new_rotation, 
-                          thickness, colour, pixels, shrink_side_by, 
-                          iteration+1, max_depth)
+# Show our picture, and save it
+img.show()

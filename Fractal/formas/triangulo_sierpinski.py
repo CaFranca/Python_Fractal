@@ -1,49 +1,72 @@
-import turtle  # Biblioteca para desenhos gráficos com tartaruga
+import turtle
+import matplotlib.pyplot as plt
+import numpy as np
 
-def desenhar_sierpinski(profundidade):
+def desenhar_sierpinski(profundidade, usar_turtle):
+    if usar_turtle:
+        screen = turtle.Screen()   # Cria a tela para o desenho
+        screen.bgcolor("black")    # Fundo escuro
+        screen.title("Triângulo de Sierpinski")  # Título da janela
 
-    screen = turtle.Screen()   # Cria a tela para o desenho
-    screen.bgcolor("black")    # Define o fundo branco (pode ser alterado para fundo escuro)
-    screen.title("Triângulo de Sierpinski")  # Título da janela
+        t = turtle.Turtle()    # Cria a tartaruga (caneta)
+        t.speed(0)             # Velocidade máxima de desenho
+        t.hideturtle()         # Esconde o cursor da tartaruga
+        t.penup()              # Levanta a caneta para movimentar sem desenhar
+        t.color("white")       # Cor da linha branca
 
-    t = turtle.Turtle()    # Cria a tartaruga (caneta)
-    t.speed(0)             # Define velocidade máxima de desenho
-    t.hideturtle()         # Esconde o cursor da tartaruga para visual mais limpo
-    t.penup()              # Levanta a caneta para movimentação sem desenhar
-    t.color("white")       # Define a cor da caneta (pode ser alterada para outras cores)
-    def draw_triangle(points):
-        """
-        Desenha um triângulo ligando os três pontos fornecidos.
-        """
-        t.penup()
-        t.goto(points[0])  # Vai para o primeiro ponto
-        t.pendown()
-        t.goto(points[1])  # Desenha linha até o segundo ponto
-        t.goto(points[2])  # Desenha linha até o terceiro ponto
-        t.goto(points[0])  # Fecha o triângulo voltando ao primeiro ponto
+        def draw_triangle(points):
+            """
+            Desenha um triângulo ligando os três pontos fornecidos.
+            """
+            t.penup()
+            t.goto(points[0])
+            t.pendown()
+            t.goto(points[1])
+            t.goto(points[2])
+            t.goto(points[0])
 
-    def sierpinski(points, level):
-        """
-        Função recursiva que desenha o triângulo de Sierpinski.
-        - points: lista com três pontos (vértices do triângulo)
-        - level: nível atual da recursão (profundidade)
-        """
-        draw_triangle(points)  # Desenha o triângulo atual
+        def sierpinski(points, level):
+            """
+            Desenha recursivamente o triângulo de Sierpinski.
+            """
+            draw_triangle(points)
+            if level > 0:
+                mid = lambda p1, p2: ((p1[0]+p2[0]) / 2, (p1[1]+p2[1]) / 2)
 
-        if level > 0:
-            # Função auxiliar para calcular ponto médio entre dois pontos
-            mid = lambda p1, p2: ((p1[0]+p2[0]) / 2, (p1[1]+p2[1]) / 2)
+                sierpinski([points[0], mid(points[0], points[1]), mid(points[0], points[2])], level-1)
+                sierpinski([points[1], mid(points[1], points[0]), mid(points[1], points[2])], level-1)
+                sierpinski([points[2], mid(points[2], points[0]), mid(points[2], points[1])], level-1)
 
-            # Chamada recursiva para os três triângulos menores, formados pelos vértices e os pontos médios
-            sierpinski([points[0], mid(points[0], points[1]), mid(points[0], points[2])], level-1)
-            sierpinski([points[1], mid(points[1], points[0]), mid(points[1], points[2])], level-1)
-            sierpinski([points[2], mid(points[2], points[0]), mid(points[2], points[1])], level-1)
+        base = [(-200, -100), (0, 200), (200, -100)]
+        sierpinski(base, profundidade)
 
-    # Define os três vértices do triângulo inicial (tamanho e posição podem ser alterados)
-    base = [(-200, -100), (0, 200), (200, -100)]
+        screen.exitonclick()
 
-    # Inicia o desenho chamando a função recursiva com a profundidade desejada
-    sierpinski(base, profundidade)
+    else:
+        # Versão com matplotlib (plotagem rápida)
+        def midpoint(p1, p2):
+            return [(p1[0]+p2[0])/2, (p1[1]+p2[1])/2]
 
-    # Mantém a janela aberta até o clique do usuário
-    screen.exitonclick()
+        def sierpinski_matplotlib(points, level):
+            if level == 0:
+                triangle = np.array(points + [points[0]])  # fecha o triângulo
+                plt.plot(triangle[:, 0], triangle[:, 1], 'w-')
+            else:
+                sierpinski_matplotlib([points[0],
+                    midpoint(points[0], points[1]),
+                    midpoint(points[0], points[2])], level-1)
+                sierpinski_matplotlib([points[1],
+                    midpoint(points[1], points[0]),
+                    midpoint(points[1], points[2])], level-1)
+                sierpinski_matplotlib([points[2],
+                    midpoint(points[2], points[0]),
+                    midpoint(points[2], points[1])], level-1)
+
+        plt.figure(facecolor='black')
+        plt.axis('equal')
+        plt.axis('off')
+
+        base = [(-200, -100), (0, 200), (200, -100)]
+        sierpinski_matplotlib(base, profundidade)
+
+        plt.show()
