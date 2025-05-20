@@ -37,10 +37,12 @@ def desenhar_floco(profundidade, usar_turtle):
         wn.exitonclick()  # Mantém a janela aberta até o clique do usuário
 
     else:
-        # Versão usando matplotlib para desenhar o floco de neve
-        fig, ax = plt.subplots()
-        ax.set_facecolor("black")  # Fundo preto
-        ax.axis("off")  # Remove os eixos
+        # Corrigido: cria figura com fundo preto diretamente
+        plt.figure(figsize=(8, 6), facecolor="black")
+        ax = plt.gca()
+        ax.set_facecolor("black")
+        ax.axis("off")
+        ax.set_aspect("equal")  # Mantém proporção do triângulo
 
         linhas = []  # Lista para armazenar os segmentos da curva de Koch
 
@@ -55,8 +57,9 @@ def desenhar_floco(profundidade, usar_turtle):
                 xB, yB = x1 + dx, y1 + dy
 
                 angulo = math.atan2(y2 - y1, x2 - x1)
-                xC = xB + math.cos(angulo - math.pi / 3) * math.hypot(dx, dy)
-                yC = yB + math.sin(angulo - math.pi / 3) * math.hypot(dx, dy)
+                dist = math.hypot(dx, dy)
+                xC = xB + math.cos(angulo - math.pi / 3) * dist
+                yC = yB + math.sin(angulo - math.pi / 3) * dist
 
                 xD, yD = x1 + 2 * dx, y1 + 2 * dy
                 xE, yE = x2, y2
@@ -81,10 +84,15 @@ def desenhar_floco(profundidade, usar_turtle):
             koch_matplotlib(pontos[2][0], pontos[2][1], pontos[0][0], pontos[0][1], level)
 
         # Inicia o desenho do floco de neve como triângulo com lados de 300 unidades
-        desenhar_triangulo_koch(-150, 50, 300, profundidade)
+        desenhar_triangulo_koch(-150, 0, 300, profundidade)
 
-        # Desenha todas as linhas calculadas na lista linhas
+        # Desenha todas as linhas calculadas
         for linha in linhas:
             ax.plot(linha[0], linha[1], color="white", linewidth=1)
 
+        # Corrigido: define limites da tela com base na figura
+        ax.set_xlim(-180, 180)
+        ax.set_ylim(-50, 280)
+
+        plt.tight_layout()
         plt.show()

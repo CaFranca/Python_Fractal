@@ -1,82 +1,79 @@
-import turtle  # Biblioteca para desenho gráfico
-import matplotlib.pyplot as plt  # Para visualização com mathlib
-import math  # Funções trigonométricas
+import turtle  # Biblioteca para desenho gráfico com tartaruga
+import matplotlib.pyplot as plt  # Biblioteca para gráficos e visualizações
+import math  # Funções matemáticas (como seno, cosseno)
 
 def desenhar_arvore(profundidade, usar_turtle):
     if usar_turtle:
-        t = turtle.Turtle()  # Cria a "caneta" para desenhar
-        wn = turtle.Screen()  # Cria a janela do desenho
-        wn.bgcolor("black")   # Fundo escuro
-        t.color("white")      # Cor da linha clara
-        t.speed("fastest")    # Velocidade máxima do desenho
-
+        # Configuração da janela e tartaruga
+        t = turtle.Turtle()
+        wn = turtle.Screen()
+        wn.bgcolor("black")      # Cor de fundo
+        t.color("white")         # Cor do desenho
+        t.speed("fastest")       # Velocidade máxima
+        t.hideturtle()           # Esconde a tartaruga
         t.penup()
-        t.goto(0, -200)  # Posição inicial da base da árvore
-        t.left(90)       # Aponta para cima
+        t.goto(0, -200)          # Posição inicial (base da árvore)
+        t.left(90)               # Aponta para cima
         t.pendown()
-        t.hideturtle()   # Esconde a tartaruga após o desenho
+
         branchSize = 100  # Tamanho inicial do tronco
 
+        # Função recursiva para desenhar galhos
         def draw_branch(level):
-            if level > profundidade:  # Condição de parada da recursão
+            if level > profundidade:
                 return
-            # Tamanho e ângulo diminuem com o nível para efeito natural
+
+            # Tamanho e ângulo do galho diminuem com a profundidade
             tamanho = branchSize * (0.8 ** level)
             angulo = 45 * (0.6 ** level)
 
-            t.forward(tamanho)   # Desenha o galho principal
-            t.left(angulo)       # Vira para o galho esquerdo
-            draw_branch(level + 1)  # Recursão para galho esquerdo
+            t.forward(tamanho)           # Desenha o galho principal
+            t.left(angulo)              # Vira à esquerda
+            draw_branch(level + 1)      # Desenha subgalho esquerdo
 
-            t.right(2 * angulo)  # Vira para o galho direito
-            draw_branch(level + 1)  # Recursão para galho direito
+            t.right(2 * angulo)         # Vira à direita
+            draw_branch(level + 1)      # Desenha subgalho direito
 
-            t.left(angulo)       # Volta à direção original
-            t.backward(tamanho)  # Retorna para o ponto inicial do galho
+            t.left(angulo)              # Retorna à posição original
+            t.backward(tamanho)         # Retorna à base do galho
 
-        draw_branch(0)  # Inicia a recursão a partir do nível 0
+        draw_branch(0)  # Inicia a árvore do nível 0
         wn.exitonclick()  # Fecha a janela ao clicar
 
     else:
-        # Usando matplotlib para desenhar a árvore com recursão
-        fig, ax = plt.subplots()
-        ax.set_facecolor("black")  # Fundo preto
-        ax.axis("off")  # Remove eixos
-        branchSize = 100  # Tamanho inicial do tronco
+        # Modo matplotlib para desenhar a árvore de forma rápida
+         plt.figure(figsize=(8, 8), facecolor="black")
+    ax = plt.gca()
+    ax.set_facecolor("black")
+    ax.axis("off")  # Remove eixos
 
-        # Lista para armazenar as linhas da árvore
-        linhas = []
+    branch_size = 100
 
-        def draw_branch(x, y, angulo, level):
-            if level > profundidade:
-                return
-            # Calcula o comprimento do galho com base no nível
-            tamanho = branchSize * (0.8 ** level)
+    def draw_branch(x, y, angle, level):
+        if level > profundidade:
+            return
 
-            # Coordenadas do ponto final do galho
-            x_fim = x + tamanho * math.cos(math.radians(angulo))
-            y_fim = y + tamanho * math.sin(math.radians(angulo))
+        # Calcula o tamanho do galho
+        length = branch_size * (0.8 ** level)
 
-            # Adiciona a linha à lista
-            linhas.append(((x, x_fim), (y, y_fim)))
+        # Coordenadas do ponto final
+        x_end = x + length * math.cos(math.radians(angle))
+        y_end = y + length * math.sin(math.radians(angle))
 
-            # Recursão para os galhos esquerdo e direito
-            novo_angulo = 45 * (0.6 ** level)
-            draw_branch(x_fim, y_fim, angulo + novo_angulo, level + 1)
-            draw_branch(x_fim, y_fim, angulo - novo_angulo, level + 1)
+        # Desenha linha do galho atual
+        ax.plot([x, x_end], [y, y_end], color="white", linewidth=1)
 
-        # Início da árvore no centro inferior
-        draw_branch(0, -200, 90, 0)  # ✅ MOVIDA para fora da função
+        # Chamada recursiva para galhos esquerdo e direito
+        draw_branch(x_end, y_end, angle + 30, level + 1)
+        draw_branch(x_end, y_end, angle - 30, level + 1)
 
-        # Desenha todas as linhas calculadas
-        for linha in linhas:
-            ax.plot(linha[0], linha[1], color="white", linewidth=1)
+    # Início da árvore no centro inferior
+    draw_branch(0, -200, 90, 0)
 
-        # Ajusta os limites da área visível
-        ax.set_xlim(-150, 150)
-        ax.set_ylim(-250, 200)
-        ax.set_aspect("equal")      # ✅ Mantém proporção correta
-        ax.autoscale(False)         # ✅ Desativa ajuste automático
+    # Ajusta os limites da tela
+    ax.set_xlim(-150, 150)
+    ax.set_ylim(-250, 250)
+    ax.set_aspect("equal")
 
-        plt.show()
-
+    plt.tight_layout()
+    plt.show()

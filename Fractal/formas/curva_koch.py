@@ -31,9 +31,11 @@ def desenhar_koch(profundidade, usar_turtle):
         wn.exitonclick()  # Fecha a janela ao clicar
 
     else:
-        # Implementação com matplotlib
-        fig, ax = plt.subplots()
-        ax.set_facecolor("black")  # Fundo preto
+        # Corrigido: cria figura com fundo preto diretamente
+        plt.figure(figsize=(8, 4), facecolor="black")
+        ax = plt.gca()  # Obtém o eixo atual
+        ax.set_facecolor("black")  # Garante fundo preto
+        ax.set_aspect("equal")  # Mantém proporção
         ax.axis("off")  # Remove os eixos
 
         linhas = []  # Lista para armazenar os segmentos da curva
@@ -55,8 +57,9 @@ def desenhar_koch(profundidade, usar_turtle):
 
                 # Ponto do vértice do triângulo equilátero
                 angulo = math.atan2(y2 - y1, x2 - x1)
-                xC = xB + math.cos(angulo - math.pi / 3) * math.hypot(dx, dy)
-                yC = yB + math.sin(angulo - math.pi / 3) * math.hypot(dx, dy)
+                dist = math.hypot(dx, dy)
+                xC = xB + math.cos(angulo - math.pi / 3) * dist
+                yC = yB + math.sin(angulo - math.pi / 3) * dist
 
                 xD = x1 + 2 * dx
                 yD = y1 + 2 * dy
@@ -77,4 +80,9 @@ def desenhar_koch(profundidade, usar_turtle):
         for linha in linhas:
             ax.plot(linha[0], linha[1], color="white", linewidth=1)
 
+        # Corrigido: define limites para exibir o fractal corretamente
+        ax.set_xlim(-160, 160)
+        ax.set_ylim(-100, 100)
+
+        plt.tight_layout()
         plt.show()

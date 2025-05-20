@@ -50,7 +50,7 @@ def desenhar_sierpinski(profundidade, usar_turtle):
         def sierpinski_matplotlib(points, level):
             if level == 0:
                 triangle = np.array(points + [points[0]])  # fecha o triângulo
-                plt.plot(triangle[:, 0], triangle[:, 1], 'w-')
+                plt.plot(triangle[:, 0], triangle[:, 1], 'w-')  # linha branca
             else:
                 sierpinski_matplotlib([points[0],
                     midpoint(points[0], points[1]),
@@ -63,10 +63,13 @@ def desenhar_sierpinski(profundidade, usar_turtle):
                     midpoint(points[2], points[1])], level-1)
 
         plt.figure(facecolor='black')
-        plt.axis('equal')
+        ax = plt.gca()
+        ax.set_facecolor("black")
+        ax.set_aspect('equal')
         plt.axis('off')
 
         base = [(-200, -100), (0, 200), (200, -100)]
         sierpinski_matplotlib(base, profundidade)
 
+        plt.tight_layout()
         plt.show()

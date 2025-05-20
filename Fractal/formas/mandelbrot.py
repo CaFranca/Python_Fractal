@@ -48,7 +48,7 @@ def desenhar_mandelbrot(usar_turtle):
         wn.exitonclick()
 
     else:
-        # Modo matplotlib com numpy, mais rápido e colorido
+        # Modo matplotlib com numpy, mais rápido e visualmente elegante
         x = np.linspace(x_min, x_max, largura)
         y = np.linspace(y_min, y_max, altura)
         X, Y = np.meshgrid(x, y)
@@ -62,7 +62,14 @@ def desenhar_mandelbrot(usar_turtle):
             Z[mascara] = Z[mascara] ** 2 + C[mascara]
             imagem[mascara & (np.abs(Z) > 2)] = i
 
-        plt.figure(figsize=(8, 8))
-        plt.imshow(imagem, extent=[x_min, x_max, y_min, y_max], cmap='hot')
-        plt.axis('off')
+        plt.figure(figsize=(8, 8), facecolor="black")
+        ax = plt.gca()
+        ax.set_facecolor("black")
+        ax.set_aspect("equal")
+        ax.axis("off")
+
+        # Paleta pode ser 'twilight', 'inferno', 'plasma', etc.
+        plt.imshow(imagem, extent=[x_min, x_max, y_min, y_max], cmap='inferno', interpolation='bilinear')
+
+        plt.tight_layout()
         plt.show()
